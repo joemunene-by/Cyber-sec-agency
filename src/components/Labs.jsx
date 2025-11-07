@@ -36,6 +36,16 @@ const labsArticles = [
 ]
 
 const Labs = () => {
+  const scrollToContact = (e) => {
+    if (e) {
+      e.stopPropagation()
+    }
+    const element = document.querySelector('#contact')
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' })
+    }
+  }
+
   return (
     <section id="labs" className="py-24 px-6 lg:px-8 relative">
       <div className="max-w-7xl mx-auto">
@@ -66,6 +76,7 @@ const Labs = () => {
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: index * 0.1 }}
               whileHover={{ y: -8, scale: 1.02 }}
+              onClick={scrollToContact}
               className="glass-card p-6 cursor-pointer group"
             >
               <div className="flex items-center justify-between mb-3">
@@ -101,6 +112,7 @@ const Labs = () => {
               </div>
 
               <motion.button
+                onClick={scrollToContact}
                 whileHover={{ x: 5 }}
                 className="mt-4 text-sm font-medium text-cyber-red flex items-center space-x-2"
               >
