@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-// import emailjs from '@emailjs/browser'
+import emailjs from '@emailjs/browser'
 
 const ContactForm = () => {
   const [formData, setFormData] = useState({
@@ -41,24 +41,56 @@ const ContactForm = () => {
     setIsSubmitting(true)
     setSubmitStatus(null)
 
-    // TODO: Integrate with EmailJS or your backend
-    // Example EmailJS integration:
-    
+    // Get EmailJS credentials from environment variables
+    const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID
+    const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID
+    const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY
+
+    // Check if EmailJS is configured
+    if (!serviceId || !templateId || !publicKey) {
+      // Fallback: Log to console if EmailJS is not configured
+      console.warn('EmailJS not configured. Please set up environment variables.')
+      console.log('Form submission:', formData)
+      
+      setTimeout(() => {
+        setSubmitStatus({ 
+          type: 'success', 
+          message: 'Thank you! We will contact you within 24 hours. (Note: EmailJS not configured - check console for form data)' 
+        })
+        setIsSubmitting(false)
+        setFormData({
+          organization: '',
+          serviceType: '',
+          name: '',
+          email: '',
+          phone: '',
+          message: ''
+        })
+      }, 1500)
+      return
+    }
+
+    // Send email via EmailJS
     try {
       await emailjs.send(
-        'service_d5e88ta',
-        'template_gc6ipvf',
+        serviceId,
+        templateId,
         {
           organization: formData.organization,
           service_type: formData.serviceType,
           name: formData.name,
           email: formData.email,
-          phone: formData.phone,
-          message: formData.message
+          phone: formData.phone || 'Not provided',
+          message: formData.message,
+          to_email: 'ceoeddieo@gmail.com' // You can change this or make it dynamic
         },
-        'gljg8baQyt4HjI_qJ'
+        publicKey
       )
-      setSubmitStatus({ type: 'success', message: 'Message sent successfully!' })
+      
+      setSubmitStatus({ 
+        type: 'success', 
+        message: 'Message sent successfully! We will contact you within 24 hours.' 
+      })
       setFormData({
         organization: '',
         serviceType: '',
@@ -68,28 +100,14 @@ const ContactForm = () => {
         message: ''
       })
     } catch (error) {
-      setSubmitStatus({ type: 'error', message: 'Failed to send message. Please try again.' })
+      console.error('EmailJS error:', error)
+      setSubmitStatus({ 
+        type: 'error', 
+        message: 'Failed to send message. Please try again or contact us directly at ceoeddieo@gmail.com' 
+      })
     } finally {
       setIsSubmitting(false)
     }
-    //*
-
-    // Placeholder for now
-    setTimeout(() => {
-      setSubmitStatus({ 
-        type: 'success', 
-        message: 'Thank you! We will contact you within 24 hours.' 
-      })
-      setIsSubmitting(false)
-      setFormData({
-        organization: '',
-        serviceType: '',
-        name: '',
-        email: '',
-        phone: '',
-        message: ''
-      })
-    }, 1500)
   }
 
   return (
